@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Quick Reference — Nishanth</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--card:#21253a;--border:#2e3250;
+  --text:#e8eaf6;--muted:#8b90b8;--accent:#7c8aff;--accent-bg:#1e2240;
+  --green:#4caf7d;--green-bg:#0d2318;--red:#f06b6b;--red-bg:#2a1010;
+  --yellow:#f5c542;--yellow-bg:#2a2010;--code-bg:#131520;
+  --radius:8px;--font:system-ui,-apple-system,sans-serif;--mono:'Courier New',monospace
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;font-size:15px;line-height:1.6}
+a{color:var(--accent)}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.header h1{font-size:16px;font-weight:600;color:var(--text)}
+.header span{font-size:12px;color:var(--muted);background:var(--accent-bg);padding:2px 8px;border-radius:20px;border:1px solid var(--accent);color:var(--accent)}
+
+/* NAV */
+.nav-wrap{background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav-wrap::-webkit-scrollbar{display:none}
+.nav{display:flex;gap:4px;padding:8px 12px;white-space:nowrap;min-width:max-content}
+.nav button{font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s;font-family:var(--font);white-space:nowrap}
+.nav button.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent)}
+.nav button:hover:not(.active){background:var(--card);color:var(--text)}
+
+/* LAYOUT */
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+.section{display:none}
+.section.active{display:block}
+.section-title{font-size:20px;font-weight:600;margin-bottom:16px;color:var(--text);padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:600;margin-bottom:6px;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px}
+.rule{font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.7}
+
+/* CODE BLOCKS */
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-size:12px;font-family:var(--mono);overflow-x:auto;color:var(--text);line-height:1.8;margin-top:8px;-webkit-overflow-scrolling:touch}
+.kw{color:#7c8aff}
+.cm{color:#4a5080;font-style:italic}
+.ok{color:#4caf7d}
+.err{color:#f06b6b}
+.str{color:#f5c542}
+
+/* TABLES */
+table.ref{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;overflow:hidden;border-radius:var(--radius)}
+table.ref th{text-align:left;color:var(--muted);font-weight:600;padding:8px 10px;background:var(--code-bg);border-bottom:1px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:0.4px}
+table.ref td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+table.ref td:first-child{color:var(--text);font-family:var(--mono);font-size:12px}
+table.ref tr:last-child td{border-bottom:none}
+
+/* TAGS */
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;margin-right:4px;margin-bottom:4px;font-weight:500}
+.tag.green{background:var(--green-bg);color:var(--green);border:1px solid var(--green)}
+.tag.red{background:var(--red-bg);color:var(--red);border:1px solid var(--red)}
+.tag.yellow{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow)}
+
+/* CHEAT SHEET GRID */
+.cheat{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.decision{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-size:13px}
+.decision span{color:var(--muted);font-size:12px;display:block;margin-bottom:4px}
+.decision strong{color:var(--accent);font-weight:600}
+
+/* STEPS */
+.steps{counter-reset:step}
+.step{display:flex;gap:12px;margin-bottom:12px}
+.step-num{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;margin-top:2px}
+.step-content{flex:1}
+.step-content strong{color:var(--text);font-size:13px}
+.step-content p{color:var(--muted);font-size:13px;margin-top:2px}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}.cheat{grid-template-columns:1fr 1fr}}
+@media(max-width:380px){.cheat{grid-template-columns:1fr}}
+
+/* HIGHLIGHT BOX */
+.highlight{background:var(--accent-bg);border:1px solid var(--accent);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--accent);margin-bottom:12px}
+.warn{background:var(--yellow-bg);border:1px solid var(--yellow);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--yellow);margin-bottom:12px}
+.good{background:var(--green-bg);border:1px solid var(--green);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--green);margin-bottom:12px}
+
+/* PYTHON SECTION */
+.py-kw{color:#ff79c6}
+.py-fn{color:#50fa7b}
+.py-str{color:#f1fa8c}
+.py-cm{color:#6272a4;font-style:italic}
+.py-num{color:#bd93f9}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SQL Quick Reference</h1>
+  <span>Interview Prep</span>
+</div>
+
+<div class="nav-wrap">
+<div class="nav" id="nav">
+  <button class="active" onclick="show('approach')">How to Approach</button>
+  <button onclick="show('joins')">Joins</button>
+  <button onclick="show('groupby')">Group By</button>
+  <button onclick="show('subquery')">Subqueries</button>
+  <button onclick="show('cte')">CTE</button>
+  <button onclick="show('window')">Window</button>
+  <button onclick="show('rank')">Rank</button>
+  <button onclick="show('lag')">Lag/Lead</button>
+  <button onclick="show('rolling')">Rolling</button>
+  <button onclick="show('case')">Case When</button>
+  <button onclick="show('null')">Null/Coalesce</button>
+  <button onclick="show('union')">Union</button>
+  <button onclick="show('string')">String</button>
+  <button onclick="show('date')">Dates</button>
+  <button onclick="show('tricky')">Tricky MCQ</button>
+  <button onclick="show('patterns')">Patterns</button>
+  <button onclick="show('python')">Python</button>
+  <button onclick="show('cheat')">Cheat Sheet</button>
+</div>
+</div>
+
+<div class="wrap">
+
+<!-- HOW TO APPROACH -->
+<div id="approach" class="section active">
+  <div class="section-title">How to approach any SQL question</div>
+  <div class="highlight">Spend 60 seconds planning before writing a single line. This saves 3 minutes of rewriting.</div>
+  <div class="card">
+    <div class="card-title">The 60 second mental checklist</div>
+    <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Count the tables and map connections</strong><p>How many tables? Which columns link them? Draw the chain: Sales → Employees → Departments</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Read the output columns first</strong><p>What does the result need? Each column tells you which table and what operation (SUM, LAG, RANK etc.)</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Map requirements to SQL concepts</strong><p>"For each X" → PARTITION BY. "Top N" → DENSE_RANK. "Compare previous" → LAG. "If condition" → CASE WHEN.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-content"><strong>Plan your CTEs</strong><p>How many layers? CTE1 = joins + aggregation. CTE2 = window functions. Final = filter + sort.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-content"><strong>Write CTE skeleton first, then fill</strong><p>Write WITH cte AS ( ... ) SELECT ... first. Fill in columns after structure is correct.</p></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">CTE skeleton — write this first every time</div>
+    <pre><span class="kw">WITH</span> step1 <span class="kw">AS</span> (
+  <span class="cm">-- joins + aggregation here</span>
+  <span class="kw">SELECT</span> ...
+  <span class="kw">FROM</span> ...
+  <span class="kw">JOIN</span> ... <span class="kw">ON</span> ...
+  <span class="kw">GROUP BY</span> ...
+),
+step2 <span class="kw">AS</span> (
+  <span class="cm">-- window functions on top of step1</span>
+  <span class="kw">SELECT</span> *, <span class="kw">DENSE_RANK() OVER (PARTITION BY</span> ... <span class="kw">ORDER BY</span> ...) <span class="kw">AS</span> rnk
+  <span class="kw">FROM</span> step1
+)
+<span class="kw">SELECT</span> ...
+<span class="kw">FROM</span> step2
+<span class="kw">WHERE</span> rnk &lt;= 2
+<span class="kw">ORDER BY</span> ...</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Common mistakes to avoid under pressure</div>
+    <table class="ref">
+      <tr><th>Mistake</th><th>Fix</th></tr>
+      <tr><td>Missing FROM inside CTE</td><td>Always write FROM right after SELECT columns</td></tr>
+      <tr><td>WHERE instead of HAVING</td><td>Aggregate in filter? → HAVING always</td></tr>
+      <tr><td>Missing PARTITION BY</td><td>"For each X" → PARTITION BY X</td></tr>
+      <tr><td>LEFT JOIN when INNER needed</td><td>"Who HAS orders" = INNER, "all including none" = LEFT</td></tr>
+      <tr><td>Missing comma between columns</td><td>Re-read SELECT list before submitting</td></tr>
+      <tr><td>Forgetting ORDER BY DESC</td><td>Top/highest = DESC, lowest = ASC</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- JOINS -->
+<div id="joins" class="section">
+  <div class="section-title">Joins</div>
+  <div class="card">
+    <div class="card-title">Join types at a glance</div>
+    <table class="ref">
+      <tr><th>Type</th><th>Returns</th><th>Use when</th></tr>
+      <tr><td>INNER JOIN</td><td>Only matched rows</td><td>"Customers who HAVE orders"</td></tr>
+      <tr><td>LEFT JOIN</td><td>All left + matched right (NULL if no match)</td><td>"All customers including those with no orders"</td></tr>
+      <tr><td>RIGHT JOIN</td><td>All right + matched left</td><td>Rare — usually rewrite as LEFT JOIN</td></tr>
+      <tr><td>FULL OUTER JOIN</td><td>All rows from both, NULLs where no match</td><td>"Everything from both tables"</td></tr>
+      <tr><td>CROSS JOIN</td><td>Every combination</td><td>Tournament schedule, all pairs</td></tr>
+      <tr><td>SELF JOIN</td><td>Table joined to itself</td><td>Employee-manager, hierarchy</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Inner join</div>
+    <pre><span class="kw">SELECT</span> e.name, d.dept_name, s.salary
+<span class="kw">FROM</span> Employees e
+<span class="kw">JOIN</span> Departments d <span class="kw">ON</span> e.dept_id = d.dept_id
+<span class="kw">JOIN</span> Salaries s <span class="kw">ON</span> e.emp_id = s.emp_id</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Left join + anti-join (find unmatched)</div>
+    <pre><span class="cm">-- All customers including those with no orders</span>
+<span class="kw">SELECT</span> c.name, o.order_id
+<span class="kw">FROM</span> Customers c
+<span class="kw">LEFT JOIN</span> Orders o <span class="kw">ON</span> c.id = o.customer_id
+
+<span class="cm">-- Customers with NO orders (anti-join)</span>
+<span class="kw">SELECT</span> c.name
+<span class="kw">FROM</span> Customers c
+<span class="kw">LEFT JOIN</span> Orders o <span class="kw">ON</span> c.id = o.customer_id
+<span class="kw">WHERE</span> o.customer_id <span class="kw">IS NULL</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Self join — employee and manager</div>
+    <pre><span class="kw">SELECT</span> e.name <span class="kw">AS</span> employee, m.name <span class="kw">AS</span> manager
+<span class="kw">FROM</span> Employees e
+<span class="kw">LEFT JOIN</span> Employees m <span class="kw">ON</span> e.manager_id = m.emp_id
+<span class="cm">-- LEFT JOIN so employees with no manager still appear</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Cross join — tournament schedule</div>
+    <pre><span class="kw">WITH</span> numbered <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> name, <span class="kw">ROW_NUMBER() OVER (ORDER BY</span> name) <span class="kw">AS</span> id
+  <span class="kw">FROM</span> Countries
+)
+<span class="kw">SELECT</span> a.name <span class="kw">AS</span> team1, b.name <span class="kw">AS</span> team2
+<span class="kw">FROM</span> numbered a
+<span class="kw">CROSS JOIN</span> numbered b
+<span class="kw">WHERE</span> a.id &lt; b.id        <span class="cm">-- play once (no reverse duplicates)</span>
+<span class="cm">-- WHERE a.id != b.id   -- home & away (play twice)</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="tag red">Trap</span> Left join becomes inner join</div>
+    <pre><span class="cm">-- WRONG: WHERE on right table kills NULLs → inner join</span>
+<span class="kw">LEFT JOIN</span> Dept d <span class="kw">ON</span> e.dept_id = d.id
+<span class="kw">WHERE</span> d.name = <span class="str">'IT'</span>  <span class="err">-- ❌ unmatched employees disappear</span>
+
+<span class="cm">-- RIGHT: move condition into ON clause</span>
+<span class="kw">LEFT JOIN</span> Dept d <span class="kw">ON</span> e.dept_id = d.id <span class="kw">AND</span> d.name = <span class="str">'IT'</span>  <span class="ok">-- ✅</span></pre>
+  </div>
+</div>
+
+<!-- GROUP BY -->
+<div id="groupby" class="section">
+  <div class="section-title">Group by / Having / Order by / Limit</div>
+  <div class="card">
+    <div class="card-title">Full structure</div>
+    <pre><span class="kw">SELECT</span> department, <span class="kw">COUNT</span>(*) <span class="kw">AS</span> emp_count, <span class="kw">AVG</span>(salary) <span class="kw">AS</span> avg_sal
+<span class="kw">FROM</span> Employees
+<span class="kw">WHERE</span> salary > 20000          <span class="cm">-- filter BEFORE grouping</span>
+<span class="kw">GROUP BY</span> department
+<span class="kw">HAVING AVG</span>(salary) > 50000   <span class="cm">-- filter AFTER grouping</span>
+<span class="kw">ORDER BY</span> avg_sal <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> 5
+<span class="kw">OFFSET</span> 2                      <span class="cm">-- skip first 2 rows (page 2)</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Execution order — memorize this</div>
+    <div class="highlight">FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT → OFFSET</div>
+    <div class="rule">This is why you can't use aggregate functions in WHERE — grouping hasn't happened yet.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">WHERE vs HAVING</div>
+    <table class="ref">
+      <tr><th>Use WHERE for</th><th>Use HAVING for</th></tr>
+      <tr><td>Filter on raw columns before grouping</td><td>Filter on COUNT / SUM / AVG after grouping</td></tr>
+      <tr><td>salary > 50000</td><td>AVG(salary) > 50000</td></tr>
+      <tr><td>department = 'IT'</td><td>COUNT(*) > 5</td></tr>
+    </table>
+    <pre><span class="err">-- ERROR: aggregate not allowed in WHERE</span>
+<span class="kw">WHERE COUNT</span>(*) > 5   <span class="err">-- ❌</span>
+<span class="kw">HAVING COUNT</span>(*) > 5  <span class="ok">-- ✅</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">GROUP BY rule — every non-aggregate in SELECT must be in GROUP BY</div>
+    <pre><span class="kw">SELECT</span> dept, name, <span class="kw">AVG</span>(salary)  <span class="cm">-- dept and name are non-aggregate</span>
+<span class="kw">FROM</span> Employees
+<span class="kw">GROUP BY</span> dept, name             <span class="cm">-- both must appear here</span>
+<span class="cm">-- AVG(salary) is aggregate → does NOT go in GROUP BY</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Aggregate functions</div>
+    <table class="ref">
+      <tr><th>Function</th><th>What it does</th><th>NULL behavior</th></tr>
+      <tr><td>COUNT(*)</td><td>Count all rows</td><td>Includes NULLs</td></tr>
+      <tr><td>COUNT(col)</td><td>Count non-null values</td><td>Ignores NULLs</td></tr>
+      <tr><td>SUM(col)</td><td>Total of values</td><td>Ignores NULLs</td></tr>
+      <tr><td>AVG(col)</td><td>Average of values</td><td>Ignores NULLs</td></tr>
+      <tr><td>MIN(col)</td><td>Smallest value</td><td>Ignores NULLs</td></tr>
+      <tr><td>MAX(col)</td><td>Largest value</td><td>Ignores NULLs</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SUBQUERIES -->
+<div id="subquery" class="section">
+  <div class="section-title">Subqueries</div>
+  <div class="card">
+    <div class="card-title">Subquery in WHERE</div>
+    <div class="rule">Use when you need to filter based on a calculated value</div>
+    <pre><span class="cm">-- Employees earning above company average</span>
+<span class="kw">SELECT</span> name, salary
+<span class="kw">FROM</span> Employees
+<span class="kw">WHERE</span> salary > (
+  <span class="kw">SELECT AVG</span>(salary) <span class="kw">FROM</span> Employees
+)</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Subquery in FROM (inline view)</div>
+    <div class="rule">Treat result of a query as a temporary table</div>
+    <pre><span class="kw">SELECT</span> dept, avg_sal
+<span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> department <span class="kw">AS</span> dept, <span class="kw">AVG</span>(salary) <span class="kw">AS</span> avg_sal
+  <span class="kw">FROM</span> Employees
+  <span class="kw">GROUP BY</span> department
+) <span class="kw">AS</span> dept_avg
+<span class="kw">WHERE</span> avg_sal > 60000</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Subquery in SELECT</div>
+    <div class="rule">Add a calculated value as a column alongside each row</div>
+    <pre><span class="kw">SELECT</span>
+  name,
+  salary,
+  (<span class="kw">SELECT AVG</span>(salary) <span class="kw">FROM</span> Employees) <span class="kw">AS</span> company_avg,
+  salary - (<span class="kw">SELECT AVG</span>(salary) <span class="kw">FROM</span> Employees) <span class="kw">AS</span> diff_from_avg
+<span class="kw">FROM</span> Employees</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Correlated subquery — runs once per row</div>
+    <div class="rule">References the outer query — slower but powerful</div>
+    <pre><span class="cm">-- Employees earning above their own department average</span>
+<span class="kw">SELECT</span> e1.name, e1.department, e1.salary
+<span class="kw">FROM</span> Employees e1
+<span class="kw">WHERE</span> e1.salary > (
+  <span class="kw">SELECT AVG</span>(e2.salary)
+  <span class="kw">FROM</span> Employees e2
+  <span class="kw">WHERE</span> e2.department = e1.department  <span class="cm">-- references outer query</span>
+)</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">EXISTS — check if subquery returns any rows</div>
+    <pre><span class="cm">-- Customers who have placed at least one order</span>
+<span class="kw">SELECT</span> c.name
+<span class="kw">FROM</span> Customers c
+<span class="kw">WHERE EXISTS</span> (
+  <span class="kw">SELECT</span> 1 <span class="kw">FROM</span> Orders o <span class="kw">WHERE</span> o.customer_id = c.id
+)
+
+<span class="cm">-- NOT EXISTS — customers with no orders</span>
+<span class="kw">WHERE NOT EXISTS</span> (...)</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Subquery vs CTE — when to use which</div>
+    <table class="ref">
+      <tr><th>Subquery</th><th>CTE</th></tr>
+      <tr><td>Simple one-off filter</td><td>Need to reuse the result multiple times</td></tr>
+      <tr><td>Quick inline calculation</td><td>Complex multi-step logic</td></tr>
+      <tr><td>EXISTS / NOT EXISTS checks</td><td>Window functions that need filtering after</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- CTE -->
+<div id="cte" class="section">
+  <div class="section-title">CTE (Common Table Expression)</div>
+  <div class="card">
+    <div class="card-title">Single CTE</div>
+    <pre><span class="kw">WITH</span> dept_avg <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> department, <span class="kw">AVG</span>(salary) <span class="kw">AS</span> avg_sal
+  <span class="kw">FROM</span> Employees
+  <span class="kw">GROUP BY</span> department
+)
+<span class="kw">SELECT</span> e.name, e.salary, d.avg_sal
+<span class="kw">FROM</span> Employees e
+<span class="kw">JOIN</span> dept_avg d <span class="kw">ON</span> e.department = d.department
+<span class="kw">WHERE</span> e.salary > d.avg_sal</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Chained CTEs — multi-table joins</div>
+    <pre><span class="kw">WITH</span> step1 <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> a.emp_id, a.name, b.salary
+  <span class="kw">FROM</span> Employees a
+  <span class="kw">JOIN</span> Salaries b <span class="kw">ON</span> a.emp_id = b.emp_id
+),
+step2 <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> s.emp_id, s.name, s.salary, d.dept_name
+  <span class="kw">FROM</span> step1 s
+  <span class="kw">JOIN</span> Departments d <span class="kw">ON</span> s.emp_id = d.emp_id
+),
+step3 <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> s.*, l.city
+  <span class="kw">FROM</span> step2 s
+  <span class="kw">LEFT JOIN</span> Locations l <span class="kw">ON</span> s.emp_id = l.emp_id
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> step3
+<span class="kw">ORDER BY</span> salary <span class="kw">DESC</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">CTE + window function filter pattern</div>
+    <div class="warn">You CANNOT filter on window function results in the same query — always use CTE first</div>
+    <pre><span class="kw">WITH</span> ranked <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> *,
+    <span class="kw">DENSE_RANK() OVER (PARTITION BY</span> dept <span class="kw">ORDER BY</span> salary <span class="kw">DESC) AS</span> rnk
+  <span class="kw">FROM</span> Employees
+)
+<span class="kw">SELECT</span> name, dept, salary
+<span class="kw">FROM</span> ranked
+<span class="kw">WHERE</span> rnk &lt;= 3  <span class="cm">-- filter AFTER window function in CTE</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">When to use CTE</div>
+    <table class="ref">
+      <tr><th>Scenario</th><th>Why CTE helps</th></tr>
+      <tr><td>Filter on window function result</td><td>Can't WHERE on window in same query</td></tr>
+      <tr><td>Reuse calculation multiple times</td><td>Write once, reference many times</td></tr>
+      <tr><td>Multi-table joins (4-5 tables)</td><td>One join per CTE = readable steps</td></tr>
+      <tr><td>Aggregate then compare</td><td>Aggregate in CTE, compare in outer query</td></tr>
+      <tr><td>Reference alias in calculation</td><td>CTE result exists before outer SELECT runs</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- WINDOW -->
+<div id="window" class="section">
+  <div class="section-title">Window function — OVER structure</div>
+  <div class="card">
+    <div class="card-title">The OVER skeleton</div>
+    <pre><span class="kw">FUNCTION() OVER (</span>
+  <span class="kw">PARTITION BY</span> col     <span class="cm">-- split into groups, reset per group</span>
+  <span class="kw">ORDER BY</span> col         <span class="cm">-- order rows within each group</span>
+  <span class="kw">ROWS BETWEEN</span> ...     <span class="cm">-- only for rolling calculations</span>
+<span class="kw">)</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">What each part does</div>
+    <table class="ref">
+      <tr><th>Part</th><th>What it does</th><th>Needed for</th></tr>
+      <tr><td>PARTITION BY</td><td>Resets function per group (like GROUP BY but rows stay separate)</td><td>ROW_NUMBER, RANK, LAG, Rolling</td></tr>
+      <tr><td>ORDER BY</td><td>Orders rows within each partition</td><td>ROW_NUMBER, RANK, LAG, Rolling</td></tr>
+      <tr><td>ROWS BETWEEN</td><td>Controls how many rows to include in calculation</td><td>Rolling totals/averages only</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Key rule</div>
+    <div class="highlight">"For each X" in the question → PARTITION BY X. Always.</div>
+    <pre><span class="cm">-- "for each customer, find their orders in order"</span>
+<span class="kw">ROW_NUMBER() OVER (PARTITION BY</span> customer_id <span class="kw">ORDER BY</span> order_date)
+
+<span class="cm">-- "across entire table" — no PARTITION BY needed</span>
+<span class="kw">RANK() OVER (ORDER BY</span> salary <span class="kw">DESC)</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">All window functions</div>
+    <table class="ref">
+      <tr><th>Function</th><th>What it does</th></tr>
+      <tr><td>ROW_NUMBER()</td><td>Sequential number — always unique, no ties</td></tr>
+      <tr><td>RANK()</td><td>Rank with ties — skips numbers after tie</td></tr>
+      <tr><td>DENSE_RANK()</td><td>Rank with ties — never skips numbers</td></tr>
+      <tr><td>LAG(col, n)</td><td>Value from n rows behind current row</td></tr>
+      <tr><td>LEAD(col, n)</td><td>Value from n rows ahead of current row</td></tr>
+      <tr><td>SUM(col) OVER</td><td>Running total or sum over a range</td></tr>
+      <tr><td>AVG(col) OVER</td><td>Moving average over a range</td></tr>
+      <tr><td>FIRST_VALUE(col)</td><td>First value in the partition</td></tr>
+      <tr><td>LAST_VALUE(col)</td><td>Last value in the partition</td></tr>
+      <tr><td>NTILE(n)</td><td>Divide rows into n equal buckets</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- RANK -->
+<div id="rank" class="section">
+  <div class="section-title">ROW_NUMBER / RANK / DENSE_RANK</div>
+  <div class="card">
+    <div class="card-title">Difference — scores: 90, 85, 85, 70</div>
+    <table class="ref">
+      <tr><th>Function</th><th>90</th><th>85</th><th>85</th><th>70</th><th>Ties?</th><th>Skips?</th></tr>
+      <tr><td>ROW_NUMBER</td><td>1</td><td>2</td><td>3</td><td>4</td><td>No</td><td>No</td></tr>
+      <tr><td>RANK</td><td>1</td><td>2</td><td>2</td><td>4</td><td>Yes</td><td>Yes → jumps to 4</td></tr>
+      <tr><td>DENSE_RANK</td><td>1</td><td>2</td><td>2</td><td>3</td><td>Yes</td><td>No → continues 3</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Nth row per group — ROW_NUMBER pattern</div>
+    <pre><span class="kw">WITH</span> ranked <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> customer_id, order_id, order_date,
+    <span class="kw">ROW_NUMBER() OVER (</span>
+      <span class="kw">PARTITION BY</span> customer_id
+      <span class="kw">ORDER BY</span> order_date
+    ) <span class="kw">AS</span> rn
+  <span class="kw">FROM</span> Orders
+)
+<span class="kw">SELECT</span> customer_id, order_id, order_date
+<span class="kw">FROM</span> ranked
+<span class="kw">WHERE</span> rn = 2   <span class="cm">-- second order per customer</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Top N per group — DENSE_RANK pattern</div>
+    <pre><span class="kw">WITH</span> ranked <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> department, emp_name, salary,
+    <span class="kw">DENSE_RANK() OVER (</span>
+      <span class="kw">PARTITION BY</span> department
+      <span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>
+    ) <span class="kw">AS</span> rnk
+  <span class="kw">FROM</span> Employees
+)
+<span class="kw">SELECT</span> department, emp_name, salary
+<span class="kw">FROM</span> ranked
+<span class="kw">WHERE</span> rnk &lt;= 3   <span class="cm">-- top 3 salaries per department (handles ties)</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">NTILE — divide into buckets</div>
+    <div class="rule">Split employees into 4 equal salary bands (quartiles)</div>
+    <pre><span class="kw">SELECT</span> name, salary,
+  <span class="kw">NTILE</span>(4) <span class="kw">OVER (ORDER BY</span> salary <span class="kw">DESC) AS</span> quartile
+<span class="kw">FROM</span> Employees
+<span class="cm">-- quartile 1 = top 25%, quartile 4 = bottom 25%</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">When to use which</div>
+    <table class="ref">
+      <tr><th>Scenario</th><th>Use</th><th>Why</th></tr>
+      <tr><td>"Find Nth order per customer"</td><td>ROW_NUMBER = N</td><td>Need unique rows</td></tr>
+      <tr><td>"Top N per group, handle ties"</td><td>DENSE_RANK &lt;= N</td><td>Tied rows both included</td></tr>
+      <tr><td>"Rank employees, skip after tie"</td><td>RANK</td><td>Olympic-style ranking</td></tr>
+      <tr><td>"Divide into percentiles"</td><td>NTILE(100)</td><td>Equal bucket distribution</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- LAG LEAD -->
+<div id="lag" class="section">
+  <div class="section-title">LAG / LEAD</div>
+  <div class="card">
+    <div class="card-title">Concept</div>
+    <div class="rule">LAG = look at the previous row's value. LEAD = look at the next row's value. Like standing in a queue — LAG is behind you, LEAD is in front.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Syntax</div>
+    <pre><span class="kw">LAG</span>(column, n, default_if_null)  <span class="kw">OVER (PARTITION BY</span> ... <span class="kw">ORDER BY</span> ...)
+<span class="kw">LEAD</span>(column, n, default_if_null) <span class="kw">OVER (PARTITION BY</span> ... <span class="kw">ORDER BY</span> ...)
+
+<span class="cm">-- n = rows back/forward (default 1)
+-- default = what to show instead of NULL (optional)
+-- Example: LAG(revenue, 1, 0) shows 0 instead of NULL for first row</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Week on week change pattern</div>
+    <pre><span class="kw">WITH</span> weekly <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    <span class="kw">DATEPART</span>(week, sale_date) <span class="kw">AS</span> week_num,
+    <span class="kw">SUM</span>(revenue) <span class="kw">AS</span> weekly_revenue
+  <span class="kw">FROM</span> Sales
+  <span class="kw">GROUP BY DATEPART</span>(week, sale_date)
+)
+<span class="kw">SELECT</span>
+  week_num,
+  weekly_revenue,
+  <span class="kw">LAG</span>(weekly_revenue, 1) <span class="kw">OVER (ORDER BY</span> week_num) <span class="kw">AS</span> prev_week,
+  weekly_revenue - <span class="kw">LAG</span>(weekly_revenue, 1) <span class="kw">OVER (ORDER BY</span> week_num) <span class="kw">AS</span> wow_change,
+  <span class="kw">ROUND</span>(100.0 * (weekly_revenue - <span class="kw">LAG</span>(weekly_revenue,1) <span class="kw">OVER (ORDER BY</span> week_num))
+    / <span class="kw">LAG</span>(weekly_revenue,1) <span class="kw">OVER (ORDER BY</span> week_num), 2) <span class="kw">AS</span> wow_pct
+<span class="kw">FROM</span> weekly</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Key behaviors</div>
+    <table class="ref">
+      <tr><th>Scenario</th><th>Result</th></tr>
+      <tr><td>First row with LAG</td><td>NULL — no previous row exists</td></tr>
+      <tr><td>Last row with LEAD</td><td>NULL — no next row exists</td></tr>
+      <tr><td>LAG(col, 7) on daily data</td><td>Same day last week</td></tr>
+      <tr><td>LAG(col, 2)</td><td>Value 2 rows back — skips one row</td></tr>
+      <tr><td>No PARTITION BY</td><td>Looks across all rows mixed together (usually wrong)</td></tr>
+      <tr><td>Avoid NULL in calculations</td><td>Use COALESCE(LAG(col,1), 0)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ROLLING -->
+<div id="rolling" class="section">
+  <div class="section-title">Rolling totals / Moving averages</div>
+  <div class="card">
+    <div class="card-title">ROWS BETWEEN reference</div>
+    <table class="ref">
+      <tr><th>Keyword</th><th>Meaning</th></tr>
+      <tr><td>UNBOUNDED PRECEDING</td><td>From the very first row in partition</td></tr>
+      <tr><td>N PRECEDING</td><td>N rows back from current row</td></tr>
+      <tr><td>CURRENT ROW</td><td>The current row itself</td></tr>
+      <tr><td>N FOLLOWING</td><td>N rows forward from current row</td></tr>
+      <tr><td>UNBOUNDED FOLLOWING</td><td>Until the last row in partition</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Running total</div>
+    <pre><span class="kw">SELECT</span> order_date, amount,
+  <span class="kw">SUM</span>(amount) <span class="kw">OVER (</span>
+    <span class="kw">PARTITION BY</span> customer_id
+    <span class="kw">ORDER BY</span> order_date
+    <span class="kw">ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span>
+  ) <span class="kw">AS</span> running_total
+<span class="kw">FROM</span> Orders</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Moving average — last 3 rows</div>
+    <pre><span class="kw">SELECT</span> sale_date, revenue,
+  <span class="kw">AVG</span>(revenue) <span class="kw">OVER (</span>
+    <span class="kw">PARTITION BY</span> product_id
+    <span class="kw">ORDER BY</span> sale_date
+    <span class="kw">ROWS BETWEEN</span> 2 <span class="kw">PRECEDING AND CURRENT ROW</span>
+  ) <span class="kw">AS</span> moving_avg_3
+<span class="kw">FROM</span> Sales
+<span class="cm">-- 2 PRECEDING = 2 rows back + current = 3 rows total</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Common patterns</div>
+    <table class="ref">
+      <tr><th>Goal</th><th>ROWS BETWEEN</th></tr>
+      <tr><td>Running total from start</td><td>UNBOUNDED PRECEDING AND CURRENT ROW</td></tr>
+      <tr><td>Moving avg last 3</td><td>2 PRECEDING AND CURRENT ROW</td></tr>
+      <tr><td>Moving avg last 7</td><td>6 PRECEDING AND CURRENT ROW</td></tr>
+      <tr><td>Next 3 rows forward</td><td>CURRENT ROW AND 3 FOLLOWING</td></tr>
+      <tr><td>Entire partition total</td><td>UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- CASE WHEN -->
+<div id="case" class="section">
+  <div class="section-title">CASE WHEN</div>
+  <div class="card">
+    <div class="card-title">Basic structure</div>
+    <pre><span class="kw">SELECT</span> name,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN</span> score <span class="kw">IS NULL THEN</span> <span class="str">'Unknown'</span>   <span class="cm">-- NULL check FIRST always</span>
+    <span class="kw">WHEN</span> score >= 90 <span class="kw">THEN</span> <span class="str">'A'</span>
+    <span class="kw">WHEN</span> score <span class="kw">BETWEEN</span> 75 <span class="kw">AND</span> 89 <span class="kw">THEN</span> <span class="str">'B'</span>
+    <span class="kw">WHEN</span> score <span class="kw">BETWEEN</span> 60 <span class="kw">AND</span> 74 <span class="kw">THEN</span> <span class="str">'C'</span>
+    <span class="kw">ELSE</span> <span class="str">'Fail'</span>
+  <span class="kw">END AS</span> grade    <span class="cm">-- END and AS are required</span>
+<span class="kw">FROM</span> Students</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Conditional aggregation — CASE inside COUNT/SUM</div>
+    <div class="rule">Pivot row values into separate columns without a PIVOT keyword</div>
+    <pre><span class="kw">SELECT</span> department,
+  <span class="kw">COUNT(CASE WHEN</span> salary > 50000 <span class="kw">THEN</span> 1 <span class="kw">END) AS</span> high_earners,
+  <span class="kw">COUNT(CASE WHEN</span> salary &lt;= 50000 <span class="kw">THEN</span> 1 <span class="kw">END) AS</span> low_earners,
+  <span class="kw">SUM(CASE WHEN</span> gender = <span class="str">'M'</span> <span class="kw">THEN</span> salary <span class="kw">ELSE</span> 0 <span class="kw">END) AS</span> male_payroll,
+  <span class="kw">COUNT(CASE WHEN</span> status = <span class="str">'active'</span> <span class="kw">THEN</span> 1 <span class="kw">END) AS</span> active_count
+<span class="kw">FROM</span> Employees
+<span class="kw">GROUP BY</span> department</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">CASE inside window function</div>
+    <pre><span class="kw">SELECT</span> page_id, visit_date, visitors,
+  <span class="kw">LEAD</span>(visitors,1) <span class="kw">OVER (PARTITION BY</span> page_id <span class="kw">ORDER BY</span> visit_date) <span class="kw">AS</span> next_day,
+  <span class="kw">CASE</span>
+    <span class="kw">WHEN LEAD</span>(visitors,1) <span class="kw">OVER (PARTITION BY</span> page_id <span class="kw">ORDER BY</span> visit_date) > visitors
+    <span class="kw">THEN</span> <span class="str">'Increasing'</span>
+    <span class="kw">ELSE</span> <span class="str">'Dropping/Same'</span>
+  <span class="kw">END AS</span> trend
+<span class="kw">FROM</span> WebTraffic</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Rules — easy to forget under pressure</div>
+    <table class="ref">
+      <tr><th>Rule</th><th>Detail</th></tr>
+      <tr><td>Always close with END</td><td>Most common syntax error — forgetting END</td></tr>
+      <tr><td>Always give alias</td><td>END AS grade, END AS category</td></tr>
+      <tr><td>NULL check goes first</td><td>WHEN col IS NULL must be first WHEN</td></tr>
+      <tr><td>Stops at first true</td><td>SQL checks top to bottom, stops at first match</td></tr>
+      <tr><td>ELSE is optional</td><td>Without ELSE, unmatched rows return NULL</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- NULL -->
+<div id="null" class="section">
+  <div class="section-title">NULL handling / COALESCE</div>
+  <div class="card">
+    <div class="card-title">NULL rules — all return NULL</div>
+    <pre><span class="kw">NULL = NULL</span>    <span class="cm">-- NULL, not True!</span>
+<span class="kw">NULL != NULL</span>   <span class="cm">-- NULL</span>
+<span class="kw">NULL + 5</span>       <span class="cm">-- NULL</span>
+<span class="kw">NULL > 5</span>       <span class="cm">-- NULL</span>
+<span class="kw">NULL AND TRUE</span>  <span class="cm">-- NULL</span>
+
+<span class="err">-- NEVER use = NULL or != NULL in WHERE</span>
+<span class="kw">WHERE</span> salary = <span class="kw">NULL</span>    <span class="err">-- ❌ returns ZERO rows</span>
+<span class="kw">WHERE</span> salary != <span class="kw">NULL</span>   <span class="err">-- ❌ returns ZERO rows</span>
+
+<span class="ok">-- ALWAYS use IS NULL / IS NOT NULL</span>
+<span class="kw">WHERE</span> salary <span class="kw">IS NULL</span>       <span class="ok">-- ✅</span>
+<span class="kw">WHERE</span> salary <span class="kw">IS NOT NULL</span>   <span class="ok">-- ✅</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">COALESCE — replace NULL with default</div>
+    <pre><span class="cm">-- Replace NULL with 0 (prevents broken math)</span>
+<span class="kw">SELECT</span> salary + <span class="kw">COALESCE</span>(bonus, 0) <span class="kw">AS</span> total_comp
+<span class="kw">FROM</span> Employees
+
+<span class="cm">-- Display replacement</span>
+<span class="kw">SELECT COALESCE</span>(middle_name, <span class="str">'N/A'</span>) <span class="kw">AS</span> middle_name
+
+<span class="cm">-- Multiple fallbacks — returns first non-NULL left to right</span>
+<span class="kw">SELECT COALESCE</span>(phone, mobile, email, <span class="str">'No contact'</span>) <span class="kw">AS</span> contact
+
+<span class="cm">-- Avoid NULL in LAG result</span>
+<span class="kw">COALESCE(LAG</span>(revenue, 1) <span class="kw">OVER (ORDER BY</span> week), 0) <span class="kw">AS</span> prev_week</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">COUNT(*) vs COUNT(column)</div>
+    <pre><span class="kw">COUNT</span>(*)        <span class="cm">-- counts ALL rows including NULLs</span>
+<span class="kw">COUNT</span>(salary)   <span class="cm">-- counts only non-NULL values</span>
+
+<span class="cm">-- Find number of NULLs in a column:</span>
+<span class="kw">SELECT COUNT</span>(*) - <span class="kw">COUNT</span>(salary) <span class="kw">AS</span> null_count
+<span class="kw">FROM</span> Employees</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">NULLIF — return NULL if two values are equal</div>
+    <div class="rule">Useful to prevent division by zero</div>
+    <pre><span class="cm">-- Without NULLIF — division by zero error if total = 0</span>
+<span class="kw">SELECT</span> revenue / total_orders  <span class="err">-- ❌ error if total_orders = 0</span>
+
+<span class="cm">-- With NULLIF — returns NULL instead of error</span>
+<span class="kw">SELECT</span> revenue / <span class="kw">NULLIF</span>(total_orders, 0) <span class="kw">AS</span> avg_order_value  <span class="ok">-- ✅</span></pre>
+  </div>
+</div>
+
+<!-- UNION -->
+<div id="union" class="section">
+  <div class="section-title">UNION / INTERSECT / EXCEPT</div>
+  <div class="card">
+    <div class="card-title">Structure</div>
+    <pre><span class="kw">SELECT</span> col1, col2 <span class="kw">FROM</span> table1
+<span class="kw">UNION</span>        <span class="cm">-- combines, removes duplicates</span>
+<span class="kw">UNION ALL</span>    <span class="cm">-- combines, keeps duplicates (faster)</span>
+<span class="kw">INTERSECT</span>    <span class="cm">-- only rows in BOTH tables</span>
+<span class="kw">EXCEPT</span>       <span class="cm">-- rows in first but NOT in second</span>
+<span class="kw">SELECT</span> col1, col2 <span class="kw">FROM</span> table2</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Rules</div>
+    <table class="ref">
+      <tr><th>Rule</th><th>Detail</th></tr>
+      <tr><td>Same column count</td><td>Both SELECTs must have same number of columns</td></tr>
+      <tr><td>Matching data types</td><td>Column types must be compatible</td></tr>
+      <tr><td>Column names from first SELECT</td><td>Alias in first SELECT sets output column names</td></tr>
+      <tr><td>ORDER BY goes at end</td><td>Only one ORDER BY — applies to final result</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Practical example — combine active and VIP customers</div>
+    <pre><span class="kw">SELECT</span> customer_id, name, <span class="str">'active'</span> <span class="kw">AS</span> source <span class="kw">FROM</span> ActiveCustomers
+<span class="kw">UNION ALL</span>
+<span class="kw">SELECT</span> customer_id, name, <span class="str">'vip'</span> <span class="kw">AS</span> source <span class="kw">FROM</span> VIPCustomers
+<span class="kw">ORDER BY</span> name</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">INNER JOIN + UNION = redundant</div>
+    <pre><span class="cm">-- INNER JOIN rows are already inside LEFT JOIN results</span>
+<span class="cm">-- So this combo is pointless — just use LEFT JOIN alone</span>
+<span class="kw">SELECT</span> ... <span class="kw">FROM</span> A <span class="kw">INNER JOIN</span> B ...
+<span class="kw">UNION</span>
+<span class="kw">SELECT</span> ... <span class="kw">FROM</span> A <span class="kw">LEFT JOIN</span> B ...
+<span class="cm">-- Result = same as LEFT JOIN alone</span></pre>
+  </div>
+</div>
+
+<!-- STRING -->
+<div id="string" class="section">
+  <div class="section-title">String functions</div>
+  <div class="card">
+    <div class="card-title">Common string functions</div>
+    <table class="ref">
+      <tr><th>Function</th><th>What it does</th><th>Example</th></tr>
+      <tr><td>LEN(col) / LENGTH(col)</td><td>Length of string</td><td>LEN('hello') = 5</td></tr>
+      <tr><td>UPPER(col)</td><td>Convert to uppercase</td><td>UPPER('hello') = 'HELLO'</td></tr>
+      <tr><td>LOWER(col)</td><td>Convert to lowercase</td><td>LOWER('HELLO') = 'hello'</td></tr>
+      <tr><td>TRIM(col)</td><td>Remove spaces from both ends</td><td>TRIM(' hi ') = 'hi'</td></tr>
+      <tr><td>LTRIM / RTRIM</td><td>Remove left / right spaces</td><td>LTRIM(' hi') = 'hi'</td></tr>
+      <tr><td>SUBSTRING(col, start, len)</td><td>Extract part of string</td><td>SUBSTRING('hello', 1, 3) = 'hel'</td></tr>
+      <tr><td>LEFT(col, n)</td><td>First n characters</td><td>LEFT('hello', 2) = 'he'</td></tr>
+      <tr><td>RIGHT(col, n)</td><td>Last n characters</td><td>RIGHT('hello', 2) = 'lo'</td></tr>
+      <tr><td>CONCAT(a, b)</td><td>Join strings together</td><td>CONCAT('hi', ' there') = 'hi there'</td></tr>
+      <tr><td>REPLACE(col, old, new)</td><td>Replace substring</td><td>REPLACE('hello', 'l', 'r') = 'herro'</td></tr>
+      <tr><td>CHARINDEX(find, col)</td><td>Position of substring</td><td>CHARINDEX('ll', 'hello') = 3</td></tr>
+      <tr><td>LIKE</td><td>Pattern matching</td><td>name LIKE 'A%' = starts with A</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">LIKE patterns</div>
+    <pre><span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'A%'</span>      <span class="cm">-- starts with A</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'%son'</span>    <span class="cm">-- ends with son</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'%an%'</span>   <span class="cm">-- contains 'an'</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'_at'</span>     <span class="cm">-- any 1 char then 'at' (cat, bat, hat)</span>
+<span class="kw">WHERE</span> name <span class="kw">NOT LIKE</span> <span class="str">'A%'</span> <span class="cm">-- does not start with A</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Practical example — extract domain from email</div>
+    <pre><span class="kw">SELECT</span>
+  email,
+  <span class="kw">SUBSTRING</span>(email, <span class="kw">CHARINDEX</span>(<span class="str">'@'</span>, email) + 1, <span class="kw">LEN</span>(email)) <span class="kw">AS</span> domain
+<span class="kw">FROM</span> Users
+<span class="cm">-- nishanth@gmail.com → gmail.com</span></pre>
+  </div>
+</div>
+
+<!-- DATES -->
+<div id="date" class="section">
+  <div class="section-title">Date functions</div>
+  <div class="card">
+    <div class="card-title">Common functions</div>
+    <table class="ref">
+      <tr><th>Function</th><th>What it does</th><th>Example</th></tr>
+      <tr><td>GETDATE() / NOW()</td><td>Current date and time</td><td>GETDATE()</td></tr>
+      <tr><td>YEAR(col)</td><td>Extract year</td><td>YEAR('2024-06-15') = 2024</td></tr>
+      <tr><td>MONTH(col)</td><td>Extract month number</td><td>MONTH('2024-06-15') = 6</td></tr>
+      <tr><td>DAY(col)</td><td>Extract day number</td><td>DAY('2024-06-15') = 15</td></tr>
+      <tr><td>DATEPART(part, col)</td><td>Extract any part</td><td>DATEPART(week, order_date)</td></tr>
+      <tr><td>DATEDIFF(unit, start, end)</td><td>Difference between dates</td><td>DATEDIFF(day, '2024-01-01', '2024-12-31') = 365</td></tr>
+      <tr><td>DATEADD(unit, n, col)</td><td>Add time to date</td><td>DATEADD(day, 7, order_date)</td></tr>
+      <tr><td>FORMAT(col, 'pattern')</td><td>Format date as string</td><td>FORMAT(date, 'yyyy-MM') = '2024-06'</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">DATEPART values</div>
+    <pre><span class="kw">DATEPART</span>(year, date)    <span class="cm">-- same as YEAR(date)</span>
+<span class="kw">DATEPART</span>(month, date)   <span class="cm">-- 1-12</span>
+<span class="kw">DATEPART</span>(week, date)    <span class="cm">-- week number of year</span>
+<span class="kw">DATEPART</span>(day, date)     <span class="cm">-- day of month</span>
+<span class="kw">DATEPART</span>(quarter, date) <span class="cm">-- 1-4</span>
+<span class="kw">DATEPART</span>(hour, date)    <span class="cm">-- 0-23</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Year on year pattern</div>
+    <pre><span class="kw">WITH</span> yearly <span class="kw">AS</span> (
+  <span class="kw">SELECT YEAR</span>(sale_date) <span class="kw">AS</span> yr, <span class="kw">SUM</span>(revenue) <span class="kw">AS</span> total
+  <span class="kw">FROM</span> Sales
+  <span class="kw">GROUP BY YEAR</span>(sale_date)
+)
+<span class="kw">SELECT</span> yr, total,
+  <span class="kw">LAG</span>(total,1) <span class="kw">OVER (ORDER BY</span> yr) <span class="kw">AS</span> prev_year,
+  total - <span class="kw">LAG</span>(total,1) <span class="kw">OVER (ORDER BY</span> yr) <span class="kw">AS</span> yoy_change,
+  <span class="kw">ROUND</span>(100.0*(total - <span class="kw">LAG</span>(total,1) <span class="kw">OVER (ORDER BY</span> yr))
+    / <span class="kw">LAG</span>(total,1) <span class="kw">OVER (ORDER BY</span> yr), 1) <span class="kw">AS</span> yoy_pct
+<span class="kw">FROM</span> yearly</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">BETWEEN date trap</div>
+    <pre><span class="cm">-- Safe for DATE columns (no time component)</span>
+<span class="kw">WHERE</span> order_date <span class="kw">BETWEEN</span> <span class="str">'2024-01-01'</span> <span class="kw">AND</span> <span class="str">'2024-12-31'</span>
+
+<span class="cm">-- DATETIME columns — BETWEEN misses Dec 31 after midnight!</span>
+<span class="cm">-- Use this instead:</span>
+<span class="kw">WHERE</span> order_date >= <span class="str">'2024-01-01'</span> <span class="kw">AND</span> order_date &lt; <span class="str">'2025-01-01'</span></pre>
+  </div>
+</div>
+
+<!-- TRICKY MCQ -->
+<div id="tricky" class="section">
+  <div class="section-title">Tricky MCQ behaviors</div>
+  <div class="card">
+    <div class="card-title">Integer division</div>
+    <pre><span class="kw">SELECT</span> 10/3     <span class="cm">-- returns 3, NOT 3.33!</span>
+<span class="kw">SELECT</span> 10.0/3   <span class="cm">-- returns 3.333...</span>
+<span class="kw">SELECT CAST</span>(10 <span class="kw">AS FLOAT</span>)/3  <span class="cm">-- returns 3.333...</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">NULL comparisons — all return NULL</div>
+    <pre><span class="kw">SELECT NULL = NULL</span>   <span class="cm">-- NULL (not True!)</span>
+<span class="kw">SELECT NULL != NULL</span>  <span class="cm">-- NULL</span>
+<span class="kw">SELECT NULL + 5</span>      <span class="cm">-- NULL</span>
+<span class="kw">WHERE</span> salary != <span class="kw">NULL</span>   <span class="err">-- returns ZERO rows</span>
+<span class="kw">WHERE</span> salary = <span class="kw">NULL</span>    <span class="err">-- returns ZERO rows</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">WHERE vs HAVING error</div>
+    <pre><span class="kw">SELECT</span> dept, <span class="kw">COUNT</span>(*) <span class="kw">FROM</span> Employees
+<span class="kw">WHERE COUNT</span>(*) > 5    <span class="err">-- ❌ ERROR: aggregate in WHERE</span>
+<span class="kw">GROUP BY</span> dept
+
+<span class="kw">GROUP BY</span> dept
+<span class="kw">HAVING COUNT</span>(*) > 5   <span class="ok">-- ✅ correct</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">UNION removes duplicates</div>
+    <pre><span class="kw">SELECT</span> 1,2,3 <span class="kw">UNION SELECT</span> 1,2,3 <span class="kw">UNION SELECT</span> 1,2,3
+<span class="cm">-- returns 1 row only (duplicates removed)</span>
+
+<span class="kw">SELECT</span> 1,2,3 <span class="kw">UNION ALL SELECT</span> 1,2,3 <span class="kw">UNION ALL SELECT</span> 1,2,3
+<span class="cm">-- returns 3 rows (all kept)</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">LIMIT vs DENSE_RANK ties</div>
+    <pre><span class="kw">LIMIT</span> 1                 <span class="cm">-- exactly 1 row, ignores ties</span>
+<span class="kw">WHERE</span> dense_rnk = 1     <span class="cm">-- all tied rows at rank 1</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Left join trap with WHERE</div>
+    <pre><span class="kw">LEFT JOIN</span> d <span class="kw">ON</span> e.id = d.id
+<span class="kw">WHERE</span> d.name = <span class="str">'IT'</span>                        <span class="err">-- ❌ acts like INNER JOIN</span>
+<span class="kw">LEFT JOIN</span> d <span class="kw">ON</span> e.id = d.id <span class="kw">AND</span> d.name = <span class="str">'IT'</span>  <span class="ok">-- ✅ true LEFT JOIN</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">GROUP BY wrong column</div>
+    <pre><span class="kw">SELECT</span> dept, <span class="kw">AVG</span>(salary)
+<span class="kw">FROM</span> Employees
+<span class="kw">GROUP BY</span> dept, salary   <span class="err">-- ❌ AVG becomes pointless per row</span>
+<span class="kw">GROUP BY</span> dept           <span class="ok">-- ✅ one avg per department</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Alias can't be used in WHERE</div>
+    <pre><span class="kw">SELECT</span> salary * 1.1 <span class="kw">AS</span> new_sal
+<span class="kw">FROM</span> Employees
+<span class="kw">WHERE</span> new_sal > 50000   <span class="err">-- ❌ alias doesn't exist yet in WHERE</span>
+
+<span class="cm">-- Fix: use CTE or repeat the expression</span>
+<span class="kw">WHERE</span> salary * 1.1 > 50000  <span class="ok">-- ✅</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">DISTINCT vs GROUP BY</div>
+    <pre><span class="kw">SELECT DISTINCT</span> department <span class="kw">FROM</span> Employees
+<span class="cm">-- same result as:</span>
+<span class="kw">SELECT</span> department <span class="kw">FROM</span> Employees <span class="kw">GROUP BY</span> department
+
+<span class="cm">-- But GROUP BY lets you add aggregates, DISTINCT doesn't</span></pre>
+  </div>
+</div>
+
+<!-- PATTERNS -->
+<div id="patterns" class="section">
+  <div class="section-title">Common interview patterns</div>
+  <div class="card">
+    <div class="card-title">Pattern 1 — employee above department average</div>
+    <pre><span class="kw">WITH</span> dept_avg <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> department, <span class="kw">AVG</span>(salary) <span class="kw">AS</span> avg_sal
+  <span class="kw">FROM</span> Employees
+  <span class="kw">GROUP BY</span> department
+)
+<span class="kw">SELECT</span> e.name, e.department, e.salary, d.avg_sal
+<span class="kw">FROM</span> Employees e
+<span class="kw">JOIN</span> dept_avg d <span class="kw">ON</span> e.department = d.department
+<span class="kw">WHERE</span> e.salary > d.avg_sal
+<span class="kw">ORDER BY</span> e.department, e.salary <span class="kw">DESC</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Pattern 2 — find duplicates</div>
+    <pre><span class="cm">-- Find emails that appear more than once</span>
+<span class="kw">SELECT</span> email, <span class="kw">COUNT</span>(*) <span class="kw">AS</span> occurrences
+<span class="kw">FROM</span> Users
+<span class="kw">GROUP BY</span> email
+<span class="kw">HAVING COUNT</span>(*) > 1
+
+<span class="cm">-- Get the actual duplicate rows</span>
+<span class="kw">WITH</span> dupes <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> *, <span class="kw">ROW_NUMBER() OVER (PARTITION BY</span> email <span class="kw">ORDER BY</span> created_at) <span class="kw">AS</span> rn
+  <span class="kw">FROM</span> Users
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> dupes <span class="kw">WHERE</span> rn > 1  <span class="cm">-- keep only duplicates</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Pattern 3 — running total with LAG comparison</div>
+    <pre><span class="kw">WITH</span> monthly <span class="kw">AS</span> (
+  <span class="kw">SELECT</span>
+    <span class="kw">YEAR</span>(order_date) <span class="kw">AS</span> yr,
+    <span class="kw">MONTH</span>(order_date) <span class="kw">AS</span> mth,
+    <span class="kw">SUM</span>(amount) <span class="kw">AS</span> revenue
+  <span class="kw">FROM</span> Orders
+  <span class="kw">GROUP BY YEAR</span>(order_date), <span class="kw">MONTH</span>(order_date)
+)
+<span class="kw">SELECT</span> yr, mth, revenue,
+  <span class="kw">SUM</span>(revenue) <span class="kw">OVER (PARTITION BY</span> yr <span class="kw">ORDER BY</span> mth
+    <span class="kw">ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span>) <span class="kw">AS</span> ytd_total,
+  <span class="kw">LAG</span>(revenue,1) <span class="kw">OVER (ORDER BY</span> yr, mth) <span class="kw">AS</span> prev_month,
+  revenue - <span class="kw">LAG</span>(revenue,1) <span class="kw">OVER (ORDER BY</span> yr, mth) <span class="kw">AS</span> mom_change
+<span class="kw">FROM</span> monthly</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Pattern 4 — top N per group with LAG</div>
+    <pre><span class="kw">WITH</span> totals <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> dept, emp_name, <span class="kw">SUM</span>(amount) <span class="kw">AS</span> total_sales
+  <span class="kw">FROM</span> Sales s
+  <span class="kw">JOIN</span> Employees e <span class="kw">ON</span> s.emp_id = e.emp_id
+  <span class="kw">GROUP BY</span> dept, emp_name
+),
+ranked <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> *,
+    <span class="kw">DENSE_RANK() OVER (PARTITION BY</span> dept <span class="kw">ORDER BY</span> total_sales <span class="kw">DESC) AS</span> rnk,
+    <span class="kw">LAG</span>(total_sales) <span class="kw">OVER (PARTITION BY</span> dept <span class="kw">ORDER BY</span> total_sales <span class="kw">DESC) AS</span> prev_total
+  <span class="kw">FROM</span> totals
+)
+<span class="kw">SELECT</span> dept, emp_name, total_sales,
+  <span class="kw">COALESCE</span>(prev_total, 0) <span class="kw">AS</span> prev_total,
+  total_sales - <span class="kw">COALESCE</span>(prev_total, 0) <span class="kw">AS</span> difference
+<span class="kw">FROM</span> ranked
+<span class="kw">WHERE</span> rnk &lt;= 2
+<span class="kw">ORDER BY</span> dept, total_sales <span class="kw">DESC</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Pattern 5 — data interpretation (metric drop)</div>
+    <div class="rule">When a PM says "feature is successful" but conversion rate dropped:</div>
+    <table class="ref">
+      <tr><th></th><th>Before</th><th>After</th></tr>
+      <tr><td>Users</td><td>50,000</td><td>70,000</td></tr>
+      <tr><td>Conv rate</td><td>8%</td><td>6%</td></tr>
+      <tr><td>Conversions</td><td>4,000</td><td>4,200</td></tr>
+    </table>
+    <div class="rule" style="margin-top:10px">Framework: Absolute numbers went UP (+200). Rate dropped because new users are lower intent. Segment new vs existing users before concluding. Suggest next steps — don't just agree or disagree.</div>
+  </div>
+</div>
+
+<!-- PYTHON -->
+<div id="python" class="section">
+  <div class="section-title">Python — interview essentials</div>
+  <div class="card">
+    <div class="card-title">Function structure</div>
+    <pre><span class="py-kw">def</span> <span class="py-fn">function_name</span>(parameter):
+    <span class="cm">-- logic here</span>
+    <span class="py-kw">return</span> result</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Second largest in array</div>
+    <pre><span class="py-kw">def</span> <span class="py-fn">second_largest</span>(arr):
+    first = second = <span class="py-fn">float</span>(<span class="py-str">'-inf'</span>)
+    <span class="py-kw">for</span> i <span class="py-kw">in</span> arr:
+        <span class="py-kw">if</span> i > first:
+            second = first
+            first = i
+        <span class="py-kw">elif</span> first > i > second:
+            second = i
+    <span class="py-kw">return</span> second</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Palindrome check</div>
+    <pre><span class="py-kw">def</span> <span class="py-fn">is_palindrome</span>(s):
+    <span class="py-kw">return</span> s == s[::-1]   <span class="cm">-- s[::-1] reverses the string</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Count vowels</div>
+    <pre><span class="py-kw">def</span> <span class="py-fn">count_vowels</span>(s):
+    vowels = (<span class="py-str">'a'</span>,<span class="py-str">'e'</span>,<span class="py-str">'i'</span>,<span class="py-str">'o'</span>,<span class="py-str">'u'</span>)
+    count = <span class="py-num">0</span>
+    <span class="py-kw">for</span> i <span class="py-kw">in</span> s:
+        <span class="py-kw">if</span> i.lower() <span class="py-kw">in</span> vowels:
+            count += <span class="py-num">1</span>
+    <span class="py-kw">return</span> count   <span class="cm">-- return AFTER loop, not inside</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Factorial</div>
+    <pre><span class="py-kw">def</span> <span class="py-fn">factorial</span>(n):
+    result = <span class="py-num">1</span>
+    <span class="py-kw">for</span> i <span class="py-kw">in</span> <span class="py-fn">range</span>(<span class="py-num">1</span>, n+<span class="py-num">1</span>):  <span class="cm">-- n+1 to include n itself</span>
+        result *= i
+    <span class="py-kw">return</span> result</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Lambda — one line function</div>
+    <pre><span class="cm">-- Regular function vs lambda</span>
+<span class="py-kw">def</span> <span class="py-fn">add</span>(x, y): <span class="py-kw">return</span> x + y
+add = <span class="py-kw">lambda</span> x, y: x + y   <span class="cm">-- same thing</span>
+
+<span class="cm">-- Ternary inside lambda</span>
+check = <span class="py-kw">lambda</span> x: <span class="py-str">'Even'</span> <span class="py-kw">if</span> x % <span class="py-num">2</span> == <span class="py-num">0</span> <span class="py-kw">else</span> <span class="py-str">'Odd'</span>
+larger = <span class="py-kw">lambda</span> x, y: x <span class="py-kw">if</span> x > y <span class="py-kw">else</span> y
+square = <span class="py-kw">lambda</span> x: x * x</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">map / filter / sorted</div>
+    <pre>numbers = [<span class="py-num">1</span>,<span class="py-num">2</span>,<span class="py-num">3</span>,<span class="py-num">4</span>,<span class="py-num">5</span>,<span class="py-num">6</span>]
+
+<span class="cm">-- map: transform every element</span>
+<span class="py-fn">list</span>(<span class="py-fn">map</span>(<span class="py-kw">lambda</span> x: x*<span class="py-num">2</span>, numbers))       <span class="cm">-- [2,4,6,8,10,12]</span>
+
+<span class="cm">-- filter: keep only matching elements</span>
+<span class="py-fn">list</span>(<span class="py-fn">filter</span>(<span class="py-kw">lambda</span> x: x % <span class="py-num">2</span> == <span class="py-num">0</span>, numbers)) <span class="cm">-- [2,4,6]</span>
+
+<span class="cm">-- sorted: sort by condition</span>
+students = [(<span class="py-str">"Raj"</span>,<span class="py-num">92</span>),(<span class="py-str">"Priya"</span>,<span class="py-num">78</span>),(<span class="py-str">"Nishanth"</span>,<span class="py-num">85</span>)]
+<span class="py-fn">sorted</span>(students, key=<span class="py-kw">lambda</span> x: x[<span class="py-num">1</span>], reverse=<span class="py-kw">True</span>)
+<span class="cm">-- [("Raj",92),("Nishanth",85),("Priya",78)]</span></pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Pandas basics</div>
+    <pre><span class="py-kw">import</span> pandas <span class="py-kw">as</span> pd
+
+<span class="cm">-- Read and inspect</span>
+df = pd.<span class="py-fn">read_csv</span>(<span class="py-str">'file.csv'</span>)
+df.<span class="py-fn">head</span>()          <span class="cm">-- first 5 rows</span>
+df.<span class="py-fn">info</span>()          <span class="cm">-- column types and nulls</span>
+df.<span class="py-fn">describe</span>()     <span class="cm">-- stats summary</span>
+df.<span class="py-fn">shape</span>          <span class="cm">-- (rows, cols)</span>
+
+<span class="cm">-- Filter rows</span>
+df[df[<span class="py-str">'salary'</span>] > <span class="py-num">50000</span>]
+df[(df[<span class="py-str">'dept'</span>] == <span class="py-str">'IT'</span>) & (df[<span class="py-str">'salary'</span>] > <span class="py-num">50000</span>)]
+
+<span class="cm">-- Group and aggregate</span>
+df.<span class="py-fn">groupby</span>(<span class="py-str">'department'</span>)[<span class="py-str">'salary'</span>].<span class="py-fn">mean</span>()
+df.<span class="py-fn">groupby</span>(<span class="py-str">'department'</span>).<span class="py-fn">agg</span>({<span class="py-str">'salary'</span>: <span class="py-str">'mean'</span>, <span class="py-str">'emp_id'</span>: <span class="py-str">'count'</span>})
+
+<span class="cm">-- Null handling</span>
+df.<span class="py-fn">isnull</span>().<span class="py-fn">sum</span>()            <span class="cm">-- count nulls per column</span>
+df.<span class="py-fn">fillna</span>(<span class="py-num">0</span>)                  <span class="cm">-- replace nulls with 0</span>
+df.<span class="py-fn">dropna</span>()                   <span class="cm">-- remove rows with any null</span>
+
+<span class="cm">-- Merge (like SQL JOIN)</span>
+pd.<span class="py-fn">merge</span>(df1, df2, on=<span class="py-str">'emp_id'</span>, how=<span class="py-str">'inner'</span>)
+<span class="cm">-- how: 'inner', 'left', 'right', 'outer'</span>
+
+<span class="cm">-- Apply lambda to column</span>
+df[<span class="py-str">'grade'</span>] = df[<span class="py-str">'score'</span>].<span class="py-fn">apply</span>(<span class="py-kw">lambda</span> x: <span class="py-str">'Pass'</span> <span class="py-kw">if</span> x >= <span class="py-num">60</span> <span class="py-kw">else</span> <span class="py-str">'Fail'</span>)</pre>
+  </div>
+  <div class="card">
+    <div class="card-title">Numpy basics</div>
+    <pre><span class="py-kw">import</span> numpy <span class="py-kw">as</span> np
+
+arr = np.<span class="py-fn">array</span>([<span class="py-num">1</span>,<span class="py-num">2</span>,<span class="py-num">3</span>,<span class="py-num">4</span>,<span class="py-num">5</span>])
+
+<span class="cm">-- Basic stats</span>
+np.<span class="py-fn">mean</span>(arr)     <span class="cm">-- average</span>
+np.<span class="py-fn">sum</span>(arr)      <span class="cm">-- sum</span>
+np.<span class="py-fn">max</span>(arr)      <span class="cm">-- max value</span>
+np.<span class="py-fn">min</span>(arr)      <span class="cm">-- min value</span>
+np.<span class="py-fn">std</span>(arr)      <span class="cm">-- standard deviation</span>
+
+<span class="cm">-- Boolean masking</span>
+arr[arr > <span class="py-num">3</span>]      <span class="cm">-- [4, 5] — elements greater than 3</span>
+arr[arr % <span class="py-num">2</span> == <span class="py-num">0</span>] <span class="cm">-- [2, 4] — even elements only</span>
+
+<span class="cm">-- np.where — conditional replacement</span>
+np.<span class="py-fn">where</span>(arr > <span class="py-num">3</span>, <span class="py-str">'big'</span>, <span class="py-str">'small'</span>)
+<span class="cm">-- ['small','small','small','big','big']</span></pre>
+  </div>
+</div>
+
+<!-- CHEAT SHEET -->
+<div id="cheat" class="section">
+  <div class="section-title">Quick decision cheat sheet</div>
+  <div class="cheat">
+    <div class="decision"><span>"For each X"</span><strong>PARTITION BY X</strong></div>
+    <div class="decision"><span>"Top N per group"</span><strong>DENSE_RANK &lt;= N</strong></div>
+    <div class="decision"><span>"Nth row only"</span><strong>ROW_NUMBER = N</strong></div>
+    <div class="decision"><span>"Compare to previous"</span><strong>LAG</strong></div>
+    <div class="decision"><span>"Compare to next"</span><strong>LEAD</strong></div>
+    <div class="decision"><span>"Running total"</span><strong>SUM OVER UNBOUNDED PRECEDING</strong></div>
+    <div class="decision"><span>"Moving avg last N"</span><strong>AVG OVER N-1 PRECEDING</strong></div>
+    <div class="decision"><span>"If this then that"</span><strong>CASE WHEN ... END</strong></div>
+    <div class="decision"><span>"Replace NULL"</span><strong>COALESCE(col, default)</strong></div>
+    <div class="decision"><span>"Filter on aggregate"</span><strong>HAVING</strong></div>
+    <div class="decision"><span>"Filter on raw rows"</span><strong>WHERE</strong></div>
+    <div class="decision"><span>"Every combination"</span><strong>CROSS JOIN + a.id &lt; b.id</strong></div>
+    <div class="decision"><span>"Combine two queries"</span><strong>UNION / UNION ALL</strong></div>
+    <div class="decision"><span>"Rows in both tables"</span><strong>INTERSECT</strong></div>
+    <div class="decision"><span>"In A but not B"</span><strong>EXCEPT</strong></div>
+    <div class="decision"><span>"All left + matched right"</span><strong>LEFT JOIN</strong></div>
+    <div class="decision"><span>"Only matched rows"</span><strong>INNER JOIN</strong></div>
+    <div class="decision"><span>"Unmatched rows only"</span><strong>LEFT JOIN WHERE b.id IS NULL</strong></div>
+    <div class="decision"><span>"Break complex query"</span><strong>CTE (WITH ... AS)</strong></div>
+    <div class="decision"><span>"Ties matter"</span><strong>DENSE_RANK not ROW_NUMBER</strong></div>
+    <div class="decision"><span>"Division by zero risk"</span><strong>NULLIF(col, 0)</strong></div>
+    <div class="decision"><span>"Percent change"</span><strong>100.0 * (new - old) / old</strong></div>
+    <div class="decision"><span>"String pattern match"</span><strong>LIKE '%pattern%'</strong></div>
+    <div class="decision"><span>"Days between dates"</span><strong>DATEDIFF(day, start, end)</strong></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">Execution order — always</div>
+    <div class="highlight">FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT → OFFSET</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Before writing any query — 60 second check</div>
+    <table class="ref">
+      <tr><th>Question</th><th>Answer tells you</th></tr>
+      <tr><td>How many tables?</td><td>How many JOINs needed</td></tr>
+      <tr><td>What does output need?</td><td>Which columns, which aggregates</td></tr>
+      <tr><td>"For each X" in question?</td><td>PARTITION BY X</td></tr>
+      <tr><td>Filtering on aggregate?</td><td>HAVING not WHERE</td></tr>
+      <tr><td>Need to filter window result?</td><td>CTE first, then WHERE</td></tr>
+      <tr><td>Ties matter?</td><td>DENSE_RANK not ROW_NUMBER</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
